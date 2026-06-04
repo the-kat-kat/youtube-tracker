@@ -3,8 +3,11 @@
     "name": "YouTube Tracker",
     "version": "1.0",
     "description": "yells at me if i waste time on youtube",
-    "permissions": ["tabs", "storage"],
-    "host_permissions": ["*://*.youtube.com/*"],
+    "permissions": ["tabs", "storage", "http://localhost:5000/*"],
+    "host_permissions": ["*://*.youtube.com/*", "http://localhost/*"],
+    "background": {
+        "service_worker": "background.js"
+    },
     "content_scripts": [
         {
             "matches": ["*://*.youtube.com/watch*"],

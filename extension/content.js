@@ -1,16 +1,12 @@
 let lastVideoId = null;
 
-function getVidId() {
-    const url = new URL()
+function getVideoId() {
+    const url = new URL(window.location.href)
     return url.searchParams.get("v");
 }
 
 function sendVideo(videoId) {
-    fetch("http://localhost:5000/track", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({video_id: videoId})
-    });
+    chrome.runtime.sendMessage({type: "TRACK_VIDEO", videoId: videoId});
 }
 
 function checkForVideo() {

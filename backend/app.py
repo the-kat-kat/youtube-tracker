@@ -1,4 +1,4 @@
-from flask import Flask, request,jsonify
+from flask import Flask, request,jsonify, render_template
 from flask_cors import CORS # turns off restriction blocking webpage from talking to webpage
 from dotenv import load_dotenv
 import requests
@@ -58,7 +58,7 @@ def track():
 
 @app.route("/videos", methods=["GET"]) #get data
 def get_videos():
-    conn = sqlite3.connet("videos.db")
+    conn = sqlite3.connect("videos.db")
     c = conn.cursor()
     c.execute("SELECT video_id, title, channel, duration, category, watched_at FROM videos ORDER BY watched_at DESC") #fetch videos from db, ordered by descending watch time
     rows = c.fetchall()
@@ -74,6 +74,10 @@ def get_videos():
             "category": row[4],
             "watched_at": row[5]
             })
+        
+@app.route("/")
+def dashboard():
+    return render_template("dashboard.html")
 
 if __name__ == "__main__":
     init_db()
