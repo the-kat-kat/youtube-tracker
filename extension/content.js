@@ -1,7 +1,7 @@
 let lastVideoId = null;
 
 function getVideoId() {
-    const url = new URL(window.location.href)
+    const url = new URL(window.location.href);
     return url.searchParams.get("v");
 }
 

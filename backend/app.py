@@ -22,7 +22,7 @@ def init_db():
         channel TEXT,
         duration TEXT,
         category TEXT,
-        watched _at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+        watched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
         """) #triple quotes for mult line string 
     conn.commit()
     conn.close()
@@ -31,6 +31,7 @@ def init_db():
 def track():
     data = request.json
     video_id = data["video_id"]
+    print("recieved video id", video_id)
 
     info = requests.get(
         "https://www.googleapis.com/youtube/v3/videos",
@@ -40,6 +41,8 @@ def track():
             "key": API_KEY
         }
     ).json()
+    
+    print("api response", info)
 
     item = info["items"][0]
     title = item["snippet"]["title"]
@@ -49,7 +52,7 @@ def track():
 
     conn = sqlite3.connect("videos.db")
     c = conn.cursor()
-    c.execute("INSERT INTO videoss (video_id, title, channel, duration, category) VALUES (?,?,? ,?,?)",
+    c.execute("INSERT INTO videos (video_id, title, channel, duration, category) VALUES (?,?,? ,?,?)",
     (video_id, title, channel, duration, category))
     conn.commit()
     conn.close()
@@ -74,6 +77,7 @@ def get_videos():
             "category": row[4],
             "watched_at": row[5]
             })
+    return jsonify(videos)
         
 @app.route("/")
 def dashboard():
