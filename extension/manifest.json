@@ -1,0 +1,14 @@
+{
+    "manifest_version": 3,
+    "name": "YouTube Tracker",
+    "version": "1.0",
+    "description": "yells at me if i waste time on youtube",
+    "permissions": ["tabs", "storage"],
+    "host_permissions": ["*://*.youtube.com/*"],
+    "content_scripts": [
+        {
+            "matches": ["*://*.youtube.com/watch*"],
+            "js": ["content.js"]
+        }
+    ]
+}
