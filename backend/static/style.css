@@ -11,6 +11,7 @@ body {
 }
 h1{
     font-size: 3em;
+    transition: transform 0.3s ease-in-out;
 }
 h1, h2, th {
   color: var(--primary);
@@ -73,9 +74,6 @@ td {
 tr:hover {
   background: var(--secondary);
 }
-.stat-box:hover{
-    transform: scale(1.02);
-}
-table:hover{
+.stat-box, table, h1:hover{
     transform: scale(1.02);
 }

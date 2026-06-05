@@ -1,7 +1,9 @@
 {
     "manifest_version": 3,
     "name": "GET OFF YOUTUBE",
-    "icon:": "kitty.png",
+    "icon":{
+        "128": "kitty.png"
+    },
     "version": "1.0",
     "description": "yells at me if i waste time on youtube",
     "permissions": ["tabs", "storage", "notifications"],
