@@ -44,6 +44,10 @@ def track():
     c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = ? ORDER BY watched_at DESC LIMIT 1", (video_id,))
     row = c.fetchone()
     
+    if row and seconds_watched ==0:
+        existing.close()
+        return jsonify({"status": "duplicate"})
+    
     if row and seconds_watched > 0:
         c.execute("UPDATE videos SET seconds_watched = seconds_watched + ? WHERE id = ?", (seconds_watched, row[0]))
         existing.commit()
@@ -96,12 +100,33 @@ def get_videos():
             "watched_at": row[6]
             })
     return jsonify(videos)
-        
+
+@app.route("/daily", methods=["GET"])
+def get_daily():
+    conn = sqlite3.connect("videos.db")
+    c = conn.cursor()
+    c.execute("""
+              SELECT DATE(watched_at) as day, SUM(seconds_watched) as total_seconds
+              FROM videos
+              GROUP BY DATE(watched_at)
+              ORDER BY day DESC
+    """)
+    rows = c.fetchall()
+    conn.close()
+    
+    daily = []
+    for row in rows:
+        daily.append({
+            "date": row[0],
+            "total_seconds": row[1]
+        })
+    return jsonify(daily)
+              
 @app.route("/")
 def dashboard():
     return render_template("dashboard.html")
 
 if __name__ == "__main__":
     init_db()
-    app.run(port=5000)
+    app.run(host="0.0.0", port=5001)
     

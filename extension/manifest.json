@@ -4,7 +4,7 @@
     "version": "1.0",
     "description": "yells at me if i waste time on youtube",
     "permissions": ["tabs", "storage"],
-    "host_permissions": ["*://*.youtube.com/*", "http://localhost/*"],
+    "host_permissions": ["*://*.youtube.com/*", "http://localhost/*", "https://script.google.com/*"],
     "background": {
         "service_worker": "background.js"
     },

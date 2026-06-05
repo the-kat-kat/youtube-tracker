@@ -18,6 +18,8 @@
     </head>
     <body>
         <h1>YouTube Tracker</h1>
+        <h2 style="color: #ffffff; margin-bottom: 10px;"> Daily Watch Time </h2>
+        <div id="daily-summary" style="margin-bottom: 40px;"></div>
 
         <div class="stats">
             <div class="stat-box">
@@ -48,8 +50,20 @@
         </table>
 
         <script>
+            async function loadDaily(){
+                const res = await fetch("http://127.0.0.1:5001/daily");
+                const days = await res.json();
+
+                const container = document.getElementById("daily-summary");
+                container.innerHTML = days.map(d => `
+                    <div style="display: flex; justify-content: space-between; background: #1a1a1a; padding: 12px 20px; border-radius: 8px; margin-bottom: 8px;">
+                        <span>${d.date}</span>
+                        <span style="color: #ff0000;">${formatTime(d.total_seconds)}</span>
+                    </div>
+                `).join("");
+            }
             async function loadVideos() {
-                const res = await fetch("http://127.0.0.1:5000/videos");
+                const res = await fetch("http://127.0.0.1:5001/videos");
                 const videos = await res.json();
 
                 document.getElementById("total-videos").textContent = videos.length;
@@ -79,7 +93,9 @@
                 return `${m}m ${s}s`;
             }
 
+            loadDaily();
             loadVideos();
+            setInterval(loadDaily, 5000);
             setInterval(loadVideos, 5000);
         </script>
     </body>
