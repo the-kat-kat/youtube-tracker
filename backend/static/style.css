@@ -10,9 +10,9 @@ body {
   padding: 80px;
 }
 h1{
-    font-size: ;
+    font-size: 3em;
 }
-h1, h2 {
+h1, h2, th {
   color: var(--primary);
   font-weight: 400;
 }
@@ -66,7 +66,6 @@ thead tr {
 th {
   padding: 12px;
   text-align: left;
-  background-color: #aaaaaa00;
 }
 td {
   padding: 12px;

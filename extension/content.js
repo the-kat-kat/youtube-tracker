@@ -40,4 +40,20 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
+window.addEventListener("beforeunload", () => {
+    if(lastVideoId && videoStartTime){
+        const secondsWatched = Math.round((Date.now() - videoStartTime)/1000);
+        sendVideo(lastVideoId, secondsWatched);
+    }
+});
+
+setInterval(()=> {
+    if(lastVideoId && videoStartTime && !document.hidden){
+        const secondsWatched = Math.round((Date.now() - videoStartTime)/1000);
+        console.log("periodic update, seconds:", secondsWatched);
+        sendVideo(lastVideoId, secondsWatched);
+        videoStartTime = Date.now();
+    }
+}, 3000);
+
 setInterval(checkForVideo, 2000);
