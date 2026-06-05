@@ -1,19 +1,33 @@
-:root{
-    --primary: #ffffff;
-    --muted:#acb7ed;
-    --secondary: #7d7ace;
+:root {
+  --primary: #ffffff;
+  --muted: #c6d0ff;
+  --secondary: #93a2f4;
 }
 body {
-  font-family: "Montserrat", sans-serif;
+  font-family: "Fredoka", sans-serif;
   background-color: var(--primary);
-  background-image: url("/static/images/blue-bg.heic");
-  background-size: 400px;
-  background-attachment: fixed;
   color: var(--primary);
-  padding: 40px;
+  padding: 80px;
 }
-h1 {
+h1{
+    font-size: ;
+}
+h1, h2 {
   color: var(--primary);
+  font-weight: 400;
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 40px;
+  bottom: 40px;
+  left: 40px;
+  right: 40px;
+  background-image: url('/static/images/star-bg.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  z-index: -1;
 }
 .stats {
   display: flex;
@@ -26,6 +40,7 @@ h1 {
   border-radius: 8px;
   flex: 1;
   text-align: center;
+  transition: transform 0.3s ease-in-out; 
 }
 .stat-box h2 {
   font-size: 2em;
@@ -34,25 +49,34 @@ h1 {
 }
 .stat-box p {
   margin: 5px 0 0 0;
-  color: var(--muted);
+
 }
 table {
   width: 100%;
   border-radius: 8px;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--muted);
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out; 
 }
-tr{
-    background: var(--secondary);
-    border-radius: 8px;
+thead tr {
+  background: var(--secondary);
 }
 th {
   padding: 12px;
   text-align: left;
+  background-color: #aaaaaa00;
 }
 td {
   padding: 12px;
-  border-bottom: 1px solid var(--muted);
 }
 tr:hover {
   background: var(--secondary);
+}
+.stat-box:hover{
+    transform: scale(1.02);
+}
+table:hover{
+    transform: scale(1.02);
 }

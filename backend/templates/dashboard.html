@@ -4,13 +4,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap"
       rel="stylesheet"
     />
 
     <meta charset="UTF-8" />
     <title>YouTube Tracker</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
     <h1>GET OFF YOUTUBE</h1>
@@ -21,7 +21,7 @@
         <p>Videos Watched</p>
       </div>
       <div class="stat-box">
-        <h2 id="today-videos">0</h2>
+        <h2 id="today-videos">0s</h2>
         <p>Today's Watch Time</p>
       </div>
     </div>
@@ -36,7 +36,6 @@
       </thead>
       <tbody id="video-list"></tbody>
     </table>
-
 
     <h2>Daily Watch Time</h2>
     <div id="daily-summary"></div>
@@ -57,32 +56,28 @@
                 `,
           )
           .join("");
+
+        const todayTime = document.getElementById("today-videos");
+        todayTime.textContent = formatTime(days[0]?.total_seconds);
       }
       async function loadVideos() {
         const res = await fetch("http://127.0.0.1:5001/videos");
         const videos = await res.json();
 
         document.getElementById("total-videos").textContent = videos.length;
-        document.getElementById("total-channels").textContent = new Set(
-          videos.map((v) => v.channel),
-        ).size;
-
-        const today = new Date().toDateString();
-        const todayCount = videos.filter(
-          (v) => new Date(v.watched_at).toDateString() === today,
-        ).length;
-        document.getElementById("today-videos").textContent = todayCount;
 
         const tbody = document.getElementById("video-list");
-        tbody.innerHTML = videos.map(v => `
+        tbody.innerHTML = videos
+          .map(
+            (v) => `
                     <tr>
-                        <td><a href="https://youtube.com/watch?v=${v.video_id}" target="_blank" style="color:#ff0000">${v.title}</a></td>
-                        <td>${v.channel}</td>
-                        <td>${v.duration}</td>
+                        <td><a href="https://youtube.com/watch?v=${v.video_id}" target="_blank">${v.title}</a></td>
                         <td>${formatTime(v.seconds_watched)}</td>
                         <td>${new Date(v.watched_at).toLocaleString()}</td>
                     </tr>
-                `).join("");
+                `,
+          )
+          .join("");
       }
 
       function formatTime(seconds) {
