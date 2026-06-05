@@ -42,7 +42,7 @@
 
     <script>
       async function loadDaily() {
-        const res = await fetch("http://youtube-tracker-cqyn.onrender.com/daily");
+        const res = await fetch("https://youtube-tracker-cqyn.onrender.com/daily");
         const days = await res.json();
 
         const container = document.getElementById("daily-summary");
@@ -61,7 +61,7 @@
         todayTime.textContent = formatTime(days[0]?.total_seconds);
       }
       async function loadVideos() {
-        const res = await fetch("http://youtube-tracker-cqyn.onrender.com/videos");
+        const res = await fetch("https://youtube-tracker-cqyn.onrender.com/videos");
         const videos = await res.json();
 
         document.getElementById("total-videos").textContent = videos.length;
