@@ -4,12 +4,17 @@ from dotenv import load_dotenv
 import requests
 import sqlite3
 import os
+import datetime
 
 load_dotenv() #load .env for api key :>
 
 app = Flask(__name__) 
 CORS(app)
 API_KEY = os.getenv("YOUTUBE_API_KEY")
+
+DAILY_LIMIT_SECONDS = 30
+
+SENT_EMAILS_DATES = set()
 
 def init_db():
     conn = sqlite3.connect("videos.db") #connects to database
@@ -24,9 +29,43 @@ def init_db():
         category TEXT,
         seconds_watched INTEGER DEFAULT 0,
         watched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
-        """) #triple quotes for mult line string 
+        """) #triple quotes for mult line string
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS email_log(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sent_date DATE
+        )
+    """)
     conn.commit()
+    
     conn.close()
+    
+def check_today_limit():
+    conn = sqlite3.connect("videos.db")
+    c = conn.cursor()
+    c.execute("""
+              SELECT SUM(seconds_watched)
+              FROM videos
+              WHERE Date(watched_at, 'localtime') = Date('now', 'localtime')
+              """)
+    row = c.fetchone()
+    total_seconds = row[0] if row[0] is not None else 0
+    print("total seconds watched today", total_seconds)
+    
+    limit_crossed = total_seconds >= DAILY_LIMIT_SECONDS
+    print("limit exceeded?", limit_crossed)
+    
+    today_str = datetime.date.today().isoformat()
+    c.execute("SELECT id FROM email_log WHERE sent_date =?", (today_str,))
+    email_already_sent = c.fetchone() is not None
+    
+    should_send_email = False
+    if limit_crossed and not email_already_sent:
+        SENT_EMAILS_DATES.add(today_str)
+        should_send_email = True
+        
+    conn.close()  
+    return{"limitExceeded": limit_crossed, "shouldSendEmail": should_send_email}
 
 @app.route("/track", methods=["POST"]) #runs when someone sends a req to /track, sends data
 def track():
@@ -37,7 +76,7 @@ def track():
     print("recieved video with watch time", video_id, seconds_watched)
     
     if not video_id:
-        return jsonify({"status": "ignored"})
+        return jsonify({"status": "ignored", "limitExceeded": False, "shouldSendEmail": False})
     
     existing = sqlite3.connect("videos.db")
     c = existing.cursor()
@@ -46,13 +85,15 @@ def track():
     
     if row and seconds_watched ==0:
         existing.close()
-        return jsonify({"status": "duplicate"})
+        limit_data = check_today_limit()
+        return jsonify({"status": "duplicate", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
     
     if row and seconds_watched > 0:
         c.execute("UPDATE videos SET seconds_watched = seconds_watched + ? WHERE id = ?", (seconds_watched, row[0]))
         existing.commit()
         existing.close()
-        return jsonify({"status": "updated"})
+        limit_data = check_today_limit()
+        return jsonify({"status": "updated", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
     existing.close()
        
     info = requests.get(
@@ -63,6 +104,9 @@ def track():
             "key": API_KEY
         }
     ).json()
+    
+    if not info.get("items"):
+        return jsonify({"status": "error", "message": "vid not foudn", "limitExceeded": False, "shouldSendEmail": False})
     
 
     item = info["items"][0]
@@ -77,8 +121,9 @@ def track():
     (video_id, title, channel, duration, category, seconds_watched))
     conn.commit()
     conn.close()
-
-    return jsonify({"status": "ok"})
+    
+    limit_data = check_today_limit()
+    return jsonify({"status": "ok", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
 
 @app.route("/videos", methods=["GET"]) #get data
 def get_videos():
@@ -106,9 +151,9 @@ def get_daily():
     conn = sqlite3.connect("videos.db")
     c = conn.cursor()
     c.execute("""
-              SELECT DATE(watched_at) as day, SUM(seconds_watched) as total_seconds
+              SELECT DATE(watched_at, 'localtime') as day, SUM(seconds_watched) as total_seconds
               FROM videos
-              GROUP BY DATE(watched_at)
+              GROUP BY DATE(watched_at, 'localtime')
               ORDER BY day DESC
     """)
     rows = c.fetchall()
@@ -128,5 +173,5 @@ def dashboard():
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=5001)
     
