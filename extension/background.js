@@ -25,6 +25,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             if (data && data.shouldSendEmail && !emailSentToday) {
                 emailSentToday = true;
+
+                chrome.notifications.create({
+                    type: "basic",
+                    title: "GET OFF YOUTUBE",
+                    icon: "kitty.png",
+                    message: "stop wasting time son"
+                })
+
                 console.log("should send email!");
                 fetch(GOOGLE_SCRIPT_URL, {method: "POST"})
                 .then(() => console.log("sent email"))

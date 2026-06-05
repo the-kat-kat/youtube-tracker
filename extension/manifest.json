@@ -1,9 +1,10 @@
 {
     "manifest_version": 3,
     "name": "GET OFF YOUTUBE",
+    "icon:": "kitty.png",
     "version": "1.0",
     "description": "yells at me if i waste time on youtube",
-    "permissions": ["tabs", "storage"],
+    "permissions": ["tabs", "storage", "notifications"],
     "host_permissions": ["*://*.youtube.com/*", "http://localhost/*", "https://script.google.com/*"],
     "background": {
         "service_worker": "background.js"
