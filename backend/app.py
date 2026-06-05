@@ -177,6 +177,16 @@ def get_daily():
 def dashboard():
     return render_template("dashboard.html")
 
+@app.route("/clear", methods=["POST"])
+def clear_db():
+    conn = sqlite3.connect("videos.db")
+    c = conn.cursor()
+    c.execute("DELETE FROM videos")
+    c.execute("DELETE FROM email_log")
+    conn.commit()
+    conn.close()
+    return jsonify ({"status": "cleared"})
+
 if __name__ == "__main__":
     init_db()
     port = int(os.environ.get("PORT", 5001))
