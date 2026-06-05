@@ -4,7 +4,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         fetch("http://127.0.0.1:5000/track", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({video_id: message.videoId})
+            body: JSON.stringify({video_id: message.videoId, secondsWatched: message.secondsWatched})
         }).then(() => {
             sendResponse({status: "ok"});
         })

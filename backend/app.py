@@ -22,6 +22,7 @@ def init_db():
         channel TEXT,
         duration TEXT,
         category TEXT,
+        seconds_watched INTEGER DEFAULT 0,
         watched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
         """) #triple quotes for mult line string 
     conn.commit()
@@ -30,9 +31,26 @@ def init_db():
 @app.route("/track", methods=["POST"]) #runs when someone sends a req to /track, sends data
 def track():
     data = request.json
+    print("recieved data", data)
     video_id = data["video_id"]
-    print("recieved video id", video_id)
-
+    seconds_watched = data.get("secondsWatched", 0)
+    print("recieved video with watch time", video_id, seconds_watched)
+    
+    if not video_id:
+        return jsonify({"status": "ignored"})
+    
+    existing = sqlite3.connect("videos.db")
+    c = existing.cursor()
+    c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = ? ORDER BY watched_at DESC LIMIT 1", (video_id,))
+    row = c.fetchone()
+    
+    if row and seconds_watched > 0:
+        c.execute("UPDATE videos SET seconds_watched = seconds_watched + ? WHERE id = ?", (seconds_watched, row[0]))
+        existing.commit()
+        existing.close()
+        return jsonify({"status": "updated"})
+    existing.close()
+       
     info = requests.get(
         "https://www.googleapis.com/youtube/v3/videos",
         params={
@@ -42,7 +60,6 @@ def track():
         }
     ).json()
     
-    print("api response", info)
 
     item = info["items"][0]
     title = item["snippet"]["title"]
@@ -52,8 +69,8 @@ def track():
 
     conn = sqlite3.connect("videos.db")
     c = conn.cursor()
-    c.execute("INSERT INTO videos (video_id, title, channel, duration, category) VALUES (?,?,? ,?,?)",
-    (video_id, title, channel, duration, category))
+    c.execute("INSERT INTO videos (video_id, title, channel, duration, category, seconds_watched) VALUES (?,?,? ,?,?,?)",
+    (video_id, title, channel, duration, category, seconds_watched))
     conn.commit()
     conn.close()
 
@@ -63,7 +80,7 @@ def track():
 def get_videos():
     conn = sqlite3.connect("videos.db")
     c = conn.cursor()
-    c.execute("SELECT video_id, title, channel, duration, category, watched_at FROM videos ORDER BY watched_at DESC") #fetch videos from db, ordered by descending watch time
+    c.execute("SELECT video_id, title, channel, duration, category, seconds_watched, watched_at FROM videos ORDER BY watched_at DESC") #fetch videos from db, ordered by descending watch time
     rows = c.fetchall()
     conn.close()
 
@@ -75,7 +92,8 @@ def get_videos():
             "channel": row[2],
             "duration": row[3],
             "category": row[4],
-            "watched_at": row[5]
+            "seconds_watched": row[5],
+            "watched_at": row[6]
             })
     return jsonify(videos)
         

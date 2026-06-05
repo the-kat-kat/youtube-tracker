@@ -40,6 +40,7 @@
                     <th>Title</th>
                     <th>Channel</th>
                     <th>Duration</th>
+                    <th>Seconds Watched</th>
                     <th>Watched At</th>
                 </tr>
             </thead>
@@ -64,9 +65,18 @@
                         <td><a href="https://youtube.com/watch?v=${v.video_id}" target="_blank" style="color:#ff0000">${v.title}</a></td>
                         <td>${v.channel}</td>
                         <td>${v.duration}</td>
+                        <td>${formatTime(v.seconds_watched)}</td>
                         <td>${new Date(v.watched_at).toLocaleString()}</td>
                     </tr>
                 `).join("");
+            }
+
+            function formatTime(seconds){
+                if (!seconds) return "0s";
+                const m = Math.floor(seconds/60);
+                const s = seconds % 60;
+                if (m===0) return `${s}s`;
+                return `${m}m ${s}s`;
             }
 
             loadVideos();
