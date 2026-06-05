@@ -62,8 +62,14 @@ def check_today_limit():
     should_send_email = False
     if limit_crossed and not email_already_sent:
         SENT_EMAILS_DATES.add(today_str)
+        c.execute("INSERT INTO email_log (sent_date) VALUES (?)", (today_str,))
+        conn.commit()
         should_send_email = True
-        
+    
+    print("total seconds today:", total_seconds)
+    print("limit crossed:", limit_crossed)
+    print("email already sent:", email_already_sent)
+    print("should send email:", should_send_email)
     conn.close()  
     return{"limitExceeded": limit_crossed, "shouldSendEmail": should_send_email}
 

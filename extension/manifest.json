@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "YouTube Tracker",
+    "name": "GET OFF YOUTUBE",
     "version": "1.0",
     "description": "yells at me if i waste time on youtube",
     "permissions": ["tabs", "storage"],

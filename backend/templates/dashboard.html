@@ -1,80 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>YouTube Tracker</title>
-        <style>
-            body { font-family: sans-serif; background: #0f0f0f; color: white; padding: 40px; }
-            h1 { color: #ff0000; }
-            .stats { display: flex; gap: 20px; margin-bottom: 30px; }
-            .stat-box { background: #1a1a1a; padding: 20px; border-radius: 8px; flex: 1; text-align: center; }
-            .stat-box h2 { font-size: 2em; margin: 0; color: #ff0000; }
-            .stat-box p { margin: 5px 0 0 0; color: #aaa; }
-            table { width: 100%; border-collapse: collapse; }
-            th { background: #1a1a1a; padding: 12px; text-align: left; }
-            td { padding: 12px; border-bottom: 1px solid #222; }
-            tr:hover { background: #1a1a1a; }
-        </style>
-    </head>
-    <body>
-        <h1>YouTube Tracker</h1>
-        <h2 style="color: #ffffff; margin-bottom: 10px;"> Daily Watch Time </h2>
-        <div id="daily-summary" style="margin-bottom: 40px;"></div>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
 
-        <div class="stats">
-            <div class="stat-box">
-                <h2 id="total-videos">0</h2>
-                <p>Videos Watched</p>
-            </div>
-            <div class="stat-box">
-                <h2 id="total-channels">0</h2>
-                <p>Unique Channels</p>
-            </div>
-            <div class="stat-box">
-                <h2 id="today-videos">0</h2>
-                <p>Watched Today</p>
-            </div>
-        </div>
+    <meta charset="UTF-8" />
+    <title>YouTube Tracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <h1>GET OFF YOUTUBE</h1>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Channel</th>
-                    <th>Duration</th>
-                    <th>Seconds Watched</th>
-                    <th>Watched At</th>
-                </tr>
-            </thead>
-            <tbody id="video-list"></tbody>
-        </table>
+    <div class="stats">
+      <div class="stat-box">
+        <h2 id="total-videos">0</h2>
+        <p>Videos Watched</p>
+      </div>
+      <div class="stat-box">
+        <h2 id="today-videos">0</h2>
+        <p>Today's Watch Time</p>
+      </div>
+    </div>
 
-        <script>
-            async function loadDaily(){
-                const res = await fetch("http://127.0.0.1:5001/daily");
-                const days = await res.json();
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Seconds Watched</th>
+          <th>Watched At</th>
+        </tr>
+      </thead>
+      <tbody id="video-list"></tbody>
+    </table>
 
-                const container = document.getElementById("daily-summary");
-                container.innerHTML = days.map(d => `
-                    <div style="display: flex; justify-content: space-between; background: #1a1a1a; padding: 12px 20px; border-radius: 8px; margin-bottom: 8px;">
+
+    <h2>Daily Watch Time</h2>
+    <div id="daily-summary"></div>
+
+    <script>
+      async function loadDaily() {
+        const res = await fetch("http://127.0.0.1:5001/daily");
+        const days = await res.json();
+
+        const container = document.getElementById("daily-summary");
+        container.innerHTML = days
+          .map(
+            (d) => `
+                    <div class="stat-box" style="display: flex; justify-content: space-between;">
                         <span>${d.date}</span>
-                        <span style="color: #ff0000;">${formatTime(d.total_seconds)}</span>
+                        <span>${formatTime(d.total_seconds)}</span>
                     </div>
-                `).join("");
-            }
-            async function loadVideos() {
-                const res = await fetch("http://127.0.0.1:5001/videos");
-                const videos = await res.json();
+                `,
+          )
+          .join("");
+      }
+      async function loadVideos() {
+        const res = await fetch("http://127.0.0.1:5001/videos");
+        const videos = await res.json();
 
-                document.getElementById("total-videos").textContent = videos.length;
-                document.getElementById("total-channels").textContent = new Set(videos.map(v => v.channel)).size;
+        document.getElementById("total-videos").textContent = videos.length;
+        document.getElementById("total-channels").textContent = new Set(
+          videos.map((v) => v.channel),
+        ).size;
 
-                const today = new Date().toDateString();
-                const todayCount = videos.filter(v => new Date(v.watched_at).toDateString() === today).length;
-                document.getElementById("today-videos").textContent = todayCount;
+        const today = new Date().toDateString();
+        const todayCount = videos.filter(
+          (v) => new Date(v.watched_at).toDateString() === today,
+        ).length;
+        document.getElementById("today-videos").textContent = todayCount;
 
-                const tbody = document.getElementById("video-list");
-                tbody.innerHTML = videos.map(v => `
+        const tbody = document.getElementById("video-list");
+        tbody.innerHTML = videos.map(v => `
                     <tr>
                         <td><a href="https://youtube.com/watch?v=${v.video_id}" target="_blank" style="color:#ff0000">${v.title}</a></td>
                         <td>${v.channel}</td>
@@ -83,20 +83,20 @@
                         <td>${new Date(v.watched_at).toLocaleString()}</td>
                     </tr>
                 `).join("");
-            }
+      }
 
-            function formatTime(seconds){
-                if (!seconds) return "0s";
-                const m = Math.floor(seconds/60);
-                const s = seconds % 60;
-                if (m===0) return `${s}s`;
-                return `${m}m ${s}s`;
-            }
+      function formatTime(seconds) {
+        if (!seconds) return "0s";
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        if (m === 0) return `${s}s`;
+        return `${m}m ${s}s`;
+      }
 
-            loadDaily();
-            loadVideos();
-            setInterval(loadDaily, 5000);
-            setInterval(loadVideos, 5000);
-        </script>
-    </body>
+      loadDaily();
+      loadVideos();
+      setInterval(loadDaily, 5000);
+      setInterval(loadVideos, 5000);
+    </script>
+  </body>
 </html>

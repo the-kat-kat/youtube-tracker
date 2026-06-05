@@ -1,5 +1,7 @@
 const GOOGLE_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwfoy2u78o0tOelVeH7o-H4IChLaqmh9hafNpTpKnZHmDNg-Ygl19Dunnic-GarrWmQjA/exec";
 
+let emailSentToday = false;
+let emailLastSentDate = null;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("Background recieved messageee", message);
@@ -9,11 +11,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({video_id: message.videoId, secondsWatched: message.secondsWatched})
         })
-        .then(res => res.json())
+        .then(res => {
+            console.log("got response status", res.status);
+            return res.json();
+        })
         .then((data)=> {
             console.log("response from backend", data);
+            const today = new Date().toDateString();
+            if(emailLastSentDate !== today) {
+                emailSentToday = false;
+                emailLastSentDate = today;
+            }
 
-            if (data && data.shouldSendEmail) {
+            if (data && data.shouldSendEmail && !emailSentToday) {
+                emailSentToday = true;
                 console.log("should send email!");
                 fetch(GOOGLE_SCRIPT_URL, {method: "POST"})
                 .then(() => console.log("sent email"))
