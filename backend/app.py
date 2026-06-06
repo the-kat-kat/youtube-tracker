@@ -14,8 +14,6 @@ API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 DAILY_LIMIT_SECONDS = 30
 
-SENT_EMAILS_DATES = set()
-
 def init_db():
     conn = sqlite3.connect("videos.db") #connects to database
     c = conn.cursor() #cursor runs commands inside the database
@@ -55,7 +53,7 @@ def check_today_limit():
     limit_crossed = total_seconds >= DAILY_LIMIT_SECONDS
     print("limit exceeded?", limit_crossed)
     
-    today_str = datetime.date.today().isoformat()
+    today_str = datetime.date.today()
     c.execute("SELECT id FROM email_log WHERE sent_date =?", (today_str,))
     email_already_sent = c.fetchone() is not None
     

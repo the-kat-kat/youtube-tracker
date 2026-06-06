@@ -31,11 +31,9 @@ function checkForVideo() {
 document.addEventListener("visibilitychange", () => {
     if (document.hidden && lastVideoId && videoStartTime) {
         const secondsWatched = Math.round((Date.now() - videoStartTime) / 1000);
-        console.log("tab hidden, seconds watched:", secondsWatched);
         sendVideo(lastVideoId, secondsWatched);
         videoStartTime = Date.now();
     } else if (!document.hidden) {
-        console.log("tab visible again");
         videoStartTime = Date.now();
     }
 });
@@ -50,7 +48,6 @@ window.addEventListener("beforeunload", () => {
 setInterval(()=> {
     if(lastVideoId && videoStartTime && !document.hidden){
         const secondsWatched = Math.round((Date.now() - videoStartTime)/1000);
-        console.log("periodic update, seconds:", secondsWatched);
         sendVideo(lastVideoId, secondsWatched);
         videoStartTime = Date.now();
     }
