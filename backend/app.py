@@ -1,12 +1,12 @@
 from flask import Flask, request,jsonify, render_template
-from flask_cors import CORS # turns off restriction blocking webpage from talking to webpage
+from flask_cors import CORS 
 from dotenv import load_dotenv
 import requests
 import sqlite3
 import os
 import datetime
 
-load_dotenv() #load .env for api key :>
+load_dotenv() 
 
 app = Flask(__name__) 
 CORS(app)
@@ -26,6 +26,7 @@ def init_db():
         duration TEXT,
         category TEXT,
         seconds_watched INTEGER DEFAULT 0,
+        user_id TEXT DEFAULT 'default id',
         watched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
         """) #triple quotes for mult line string
     c.execute("""
@@ -77,6 +78,7 @@ def track():
     print("recieved data", data)
     video_id = data["video_id"]
     seconds_watched = data.get("secondsWatched", 0)
+    user_id = data.get("user_id", "default id")
     print("recieved video with watch time", video_id, seconds_watched)
     
     if not video_id:
@@ -84,7 +86,7 @@ def track():
     
     existing = sqlite3.connect("videos.db")
     c = existing.cursor()
-    c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = ? ORDER BY watched_at DESC LIMIT 1", (video_id,))
+    c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = ? AND user_id = ? AND DATE(watched_at, 'localtime') = DATE('now', 'localtime') ORDER BY watched_at DESC LIMIT 1", (video_id, user_id))
     row = c.fetchone()
     
     if row and seconds_watched ==0:
@@ -179,8 +181,8 @@ def dashboard():
 def clear_db():
     conn = sqlite3.connect("videos.db")
     c = conn.cursor()
-    c.execute("DELETE FROM videos")
-    c.execute("DELETE FROM email_log")
+    c.execute("DROP TABLE IF EXISTS videos")
+    c.execute("DROP TABLE IF EXISTS email_log")
     conn.commit()
     conn.close()
     return jsonify ({"status": "cleared"})
