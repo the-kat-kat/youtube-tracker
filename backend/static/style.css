@@ -20,11 +20,7 @@ h1, h2, th {
 body::before {
   content: "";
   position: fixed;
-  top: 40px;
-  bottom: 40px;
-  left: 40px;
-  right: 40px;
-  background-image: url('/static/images/star-bg.png');
+  background-image: url('/static/images/yt-1.png');
   background-size: cover;
   background-position: center;
   border-radius: 20px;

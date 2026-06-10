@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 
-DAILY_LIMIT_SECONDS = 30
+DAILY_LIMIT_SECONDS = 30 * 4
 
 def init_db():
     conn = sqlite3.connect("videos.db") #connects to database
@@ -32,21 +32,23 @@ def init_db():
     c.execute("""
         CREATE TABLE IF NOT EXISTS email_log(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sent_date DATE
+            sent_date DATE,
+            use_id TEXT DEFAULT 'default_id'
         )
     """)
     conn.commit()
     
     conn.close()
     
-def check_today_limit():
+def check_today_limit(user_id = "default_id"):
     conn = sqlite3.connect("videos.db")
     c = conn.cursor()
     c.execute("""
               SELECT SUM(seconds_watched)
               FROM videos
               WHERE Date(watched_at, 'localtime') = Date('now', 'localtime')
-              """)
+              AND user_id = ?
+              """, (user_id,))
     row = c.fetchone()
     total_seconds = row[0] if row[0] is not None else 0
     print("total seconds watched today", total_seconds)
@@ -55,13 +57,12 @@ def check_today_limit():
     print("limit exceeded?", limit_crossed)
     
     today_str = datetime.date.today()
-    c.execute("SELECT id FROM email_log WHERE sent_date =?", (today_str,))
+    c.execute("SELECT id FROM email_log WHERE sent_date = ? AND  user_id = ?", (today_str, user_id,))
     email_already_sent = c.fetchone() is not None
     
     should_send_email = False
     if limit_crossed and not email_already_sent:
-        SENT_EMAILS_DATES.add(today_str)
-        c.execute("INSERT INTO email_log (sent_date) VALUES (?)", (today_str,))
+        c.execute("INSERT INTO email_log (sent_date, user_id) VALUES (?)", (today_str, user_id,))
         conn.commit()
         should_send_email = True
     
@@ -123,7 +124,7 @@ def track():
 
     conn = sqlite3.connect("videos.db")
     c = conn.cursor()
-    c.execute("INSERT INTO videos (video_id, title, channel, duration, category, seconds_watched) VALUES (?,?,? ,?,?,?)",
+    c.execute("INSERT INTO videos (video_id, title, channel, duration, category, user_id, seconds_watched) VALUES (?,?,? ,?,?,?)",
     (video_id, title, channel, duration, category, seconds_watched))
     conn.commit()
     conn.close()
