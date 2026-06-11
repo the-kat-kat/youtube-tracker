@@ -8,14 +8,15 @@ import os
 import datetime
 
 load_dotenv() 
-pool = ConnectionPool(DB_URL, min_size=1, max_size=5, open=True)
-app = Flask(__name__) 
-CORS(app)
     
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 DB_URL = os.getenv("DB_URL")
 
 DAILY_LIMIT_SECONDS = 30 * 4
+
+pool = ConnectionPool(DB_URL, min_size=1, max_size=5, open=True)
+app = Flask(__name__) 
+CORS(app)
 
 
 def init_db():
