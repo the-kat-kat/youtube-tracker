@@ -1,5 +1,5 @@
 .env 
-#don't steal my api key :(
+node_modules/
 __pycache__/
 *.pyc
 .DS_Store
