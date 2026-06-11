@@ -40,7 +40,7 @@
 
     <script>
       async function loadDaily() {
-        const res = await fetch("https://youtube-tracker.railway.internal/daily");
+        const res = await fetch("https://youtube-tracker-production-2dbe.up.railway.app/daily");
         const days = await res.json();
 
         const container = document.getElementById("daily-summary");
