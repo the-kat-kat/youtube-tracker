@@ -3,24 +3,28 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import requests
 import psycopg
+from psycopg_pool import ConnectionPool
 import os
 import datetime
 
 load_dotenv() 
-
+pool = None
 app = Flask(__name__) 
 CORS(app)
-with app.app_context():
-    init_db()
     
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 DB_URL = os.getenv("DB_URL")
 
 DAILY_LIMIT_SECONDS = 30 * 4
 
+def get_pool():
+    global pool
+    if pool is None:
+        pool = ConnectionPool(DB_URL, min_size=1, max_size=3)
+    return pool
 
 def init_db():
-    conn = psycopg.connect(DB_URL)
+    conn = get_pool().getconn()
     c = conn.cursor() 
     c.execute(""" 
         CREATE TABLE IF NOT EXISTS videos(
@@ -43,10 +47,10 @@ def init_db():
     """)
     conn.commit()
     
-    conn.close()
+    get_pool().putconn(conn)
     
 def check_today_limit(user_id = "default_id"):
-    conn = psycopg.connect(DB_URL)
+    conn = get_pool().getconn()
     c = conn.cursor()
     c.execute("""
               SELECT SUM(seconds_watched)
@@ -75,7 +79,7 @@ def check_today_limit(user_id = "default_id"):
     print("limit crossed:", limit_crossed)
     print("email already sent:", email_already_sent)
     print("should send email:", should_send_email)
-    conn.close()  
+    get_pool().putconn(conn)
     return{"limitExceeded": limit_crossed, "shouldSendEmail": should_send_email}
 
 @app.route("/track", methods=["POST"])
@@ -90,7 +94,7 @@ def track():
     if not video_id:
         return jsonify({"status": "ignored", "limitExceeded": False, "shouldSendEmail": False})
     
-    existing = psycopg.connect(DB_URL)
+    existing = get_pool().getconn()
     c = existing.cursor()
     c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = %s AND user_id = %s AND DATE(watched_at) = CURRENT_DATE ORDER BY watched_at DESC LIMIT 1", (video_id, user_id))
     row = c.fetchone()
@@ -127,23 +131,23 @@ def track():
     duration = item["contentDetails"]["duration"]
     category = item["snippet"]["categoryId"]
 
-    conn = psycopg.connect(DB_URL)
+    conn = get_pool().getconn()
     c = conn.cursor()
     c.execute("INSERT INTO videos (video_id, title, channel, duration, category, user_id, seconds_watched) VALUES (%s, %s, %s, %s, %s, %s, %s)",
     (video_id, title, channel, duration, category, user_id, seconds_watched))
     conn.commit()
-    conn.close()
+    get_pool().putconn(conn)
     
     limit_data = check_today_limit(user_id)
     return jsonify({"status": "ok", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
 
 @app.route("/videos", methods=["GET"]) 
 def get_videos():
-    conn = psycopg.connect(DB_URL)
+    conn = get_pool().getconn()
     c = conn.cursor()
     c.execute("SELECT video_id, title, channel, duration, category, seconds_watched, watched_at FROM videos ORDER BY watched_at DESC") 
     rows = c.fetchall()
-    conn.close()
+    get_pool().putconn(conn)
 
     videos = []
     for row in rows:
@@ -160,7 +164,7 @@ def get_videos():
 
 @app.route("/daily", methods=["GET"])
 def get_daily():
-    conn = psycopg.connect(DB_URL)
+    conn = get_pool().getconn()
     c = conn.cursor()
     c.execute("""
               SELECT DATE(watched_at) as day, SUM(seconds_watched) as total_seconds
@@ -169,7 +173,7 @@ def get_daily():
               ORDER BY day DESC
     """)
     rows = c.fetchall()
-    conn.close()
+    get_pool().putconn(conn)
     
     daily = []
     for row in rows:
@@ -185,13 +189,16 @@ def dashboard():
 
 @app.route("/clear", methods=["POST"])
 def clear_db():
-    conn = psycopg.connect(DB_URL)
+    conn = get_pool().getconn()
     c = conn.cursor()
     c.execute("DROP TABLE IF EXISTS videos")
     c.execute("DROP TABLE IF EXISTS email_log")
     conn.commit()
-    conn.close()
+    get_pool().putconn(conn)
     return jsonify ({"status": "cleared"})
+
+with app.app_context():
+    init_db()
 
 if __name__ == "__main__":
     init_db()
