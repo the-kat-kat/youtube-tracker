@@ -92,6 +92,27 @@
       loadVideos();
       setInterval(loadDaily, 5000);
       setInterval(loadVideos, 5000);
+
+      async function load_level() {
+        const res = await fetch('https://youtube-tracker-cqyn.onrender.com/daily');
+        const time = await res.json[0]?.total_seconds || 0;
+
+        if (total_seconds > 30){
+          document.body.classnName = "level2";
+        }
+        else if (total_seconds > 60){
+          document.body.className = "level3";
+        }
+        else if (total_seconds > 90 ){
+          document.body.className = "level4";
+        }
+        else if (total_seconds > 120){
+          document.body.className = "level5"
+        }
+        else{
+          document.body.className = "";
+        }
+      }
     </script>
   </body>
 </html>

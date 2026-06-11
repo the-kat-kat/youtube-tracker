@@ -10,10 +10,14 @@ load_dotenv()
 
 app = Flask(__name__) 
 CORS(app)
+with app.app_context():
+    init_db()
+    
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 DB_URL = os.getenv("DB_URL")
 
 DAILY_LIMIT_SECONDS = 30 * 4
+
 
 def init_db():
     conn = psycopg.connect(DB_URL)
