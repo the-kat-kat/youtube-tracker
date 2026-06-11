@@ -90,8 +90,8 @@
 
       loadDaily();
       loadVideos();
-      setInterval(loadDaily, 5000);
-      setInterval(loadVideos, 50000);
+      setInterval(loadDaily, 10000);
+      setInterval(loadVideos, 10000);
 
       async function load_level() {
         const res = await fetch('https://youtube-tracker-cqyn.onrender.com/daily');
