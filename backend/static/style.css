@@ -23,7 +23,6 @@ body::before {
   background-image: url('/static/images/yt-1.png');
   background-size: cover;
   background-position: center;
-  border-radius: 20px;
   z-index: -1;
 }
 .stats {

@@ -2,7 +2,7 @@ from flask import Flask, request,jsonify, render_template
 from flask_cors import CORS 
 from dotenv import load_dotenv
 import requests
-import sqlite3
+import psycopg
 import os
 import datetime
 
@@ -11,15 +11,16 @@ load_dotenv()
 app = Flask(__name__) 
 CORS(app)
 API_KEY = os.getenv("YOUTUBE_API_KEY")
+DB_URL = os.getenv("DB_URL")
 
 DAILY_LIMIT_SECONDS = 30 * 4
 
 def init_db():
-    conn = sqlite3.connect("videos.db") #connects to database
-    c = conn.cursor() #cursor runs commands inside the database
+    conn = psycopg.connect(DB_URL)
+    c = conn.cursor() 
     c.execute(""" 
         CREATE TABLE IF NOT EXISTS videos(
-        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        id SERIAL PRIMARY KEY, 
         video_id TEXT,
         title TEXT,
         channel TEXT,
@@ -31,9 +32,9 @@ def init_db():
         """) #triple quotes for mult line string
     c.execute("""
         CREATE TABLE IF NOT EXISTS email_log(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             sent_date DATE,
-            use_id TEXT DEFAULT 'default_id'
+            user_id TEXT DEFAULT 'default_id'
         )
     """)
     conn.commit()
@@ -41,13 +42,13 @@ def init_db():
     conn.close()
     
 def check_today_limit(user_id = "default_id"):
-    conn = sqlite3.connect("videos.db")
+    conn = psycopg.connect(DB_URL)
     c = conn.cursor()
     c.execute("""
               SELECT SUM(seconds_watched)
               FROM videos
-              WHERE Date(watched_at, 'localtime') = Date('now', 'localtime')
-              AND user_id = ?
+              WHERE Date(watched_at) = CURRENt_DATE
+              AND user_id = %s
               """, (user_id,))
     row = c.fetchone()
     total_seconds = row[0] if row[0] is not None else 0
@@ -57,12 +58,12 @@ def check_today_limit(user_id = "default_id"):
     print("limit exceeded?", limit_crossed)
     
     today_str = datetime.date.today()
-    c.execute("SELECT id FROM email_log WHERE sent_date = ? AND  user_id = ?", (today_str, user_id,))
+    c.execute("SELECT id FROM email_log WHERE sent_date = %s AND  user_id = %s", (today_str, user_id,))
     email_already_sent = c.fetchone() is not None
     
     should_send_email = False
     if limit_crossed and not email_already_sent:
-        c.execute("INSERT INTO email_log (sent_date, user_id) VALUES (?)", (today_str, user_id,))
+        c.execute("INSERT INTO email_log (sent_date, user_id) VALUES (%s, %s)", (today_str, user_id,))
         conn.commit()
         should_send_email = True
     
@@ -73,7 +74,7 @@ def check_today_limit(user_id = "default_id"):
     conn.close()  
     return{"limitExceeded": limit_crossed, "shouldSendEmail": should_send_email}
 
-@app.route("/track", methods=["POST"]) #runs when someone sends a req to /track, sends data
+@app.route("/track", methods=["POST"])
 def track():
     data = request.json
     print("recieved data", data)
@@ -85,21 +86,21 @@ def track():
     if not video_id:
         return jsonify({"status": "ignored", "limitExceeded": False, "shouldSendEmail": False})
     
-    existing = sqlite3.connect("videos.db")
+    existing = psycopg.connect(DB_URL)
     c = existing.cursor()
-    c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = ? AND user_id = ? AND DATE(watched_at, 'localtime') = DATE('now', 'localtime') ORDER BY watched_at DESC LIMIT 1", (video_id, user_id))
+    c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = %s AND user_id = %s AND DATE(watched_at) = CURRENT_DATE ORDER BY watched_at DESC LIMIT 1", (video_id, user_id))
     row = c.fetchone()
     
     if row and seconds_watched ==0:
         existing.close()
-        limit_data = check_today_limit()
+        limit_data = check_today_limit(user_id)
         return jsonify({"status": "duplicate", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
     
     if row and seconds_watched > 0:
-        c.execute("UPDATE videos SET seconds_watched = seconds_watched + ? WHERE id = ?", (seconds_watched, row[0]))
+        c.execute("UPDATE videos SET seconds_watched = seconds_watched + %s WHERE id = %s", (seconds_watched, row[0]))
         existing.commit()
         existing.close()
-        limit_data = check_today_limit()
+        limit_data = check_today_limit(user_id)
         return jsonify({"status": "updated", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
     existing.close()
        
@@ -122,26 +123,26 @@ def track():
     duration = item["contentDetails"]["duration"]
     category = item["snippet"]["categoryId"]
 
-    conn = sqlite3.connect("videos.db")
+    conn = psycopg.connect(DB_URL)
     c = conn.cursor()
-    c.execute("INSERT INTO videos (video_id, title, channel, duration, category, user_id, seconds_watched) VALUES (?,?,? ,?,?,?)",
-    (video_id, title, channel, duration, category, seconds_watched))
+    c.execute("INSERT INTO videos (video_id, title, channel, duration, category, user_id, seconds_watched) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+    (video_id, title, channel, duration, category, user_id, seconds_watched))
     conn.commit()
     conn.close()
     
-    limit_data = check_today_limit()
+    limit_data = check_today_limit(user_id)
     return jsonify({"status": "ok", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
 
-@app.route("/videos", methods=["GET"]) #get data
+@app.route("/videos", methods=["GET"]) 
 def get_videos():
-    conn = sqlite3.connect("videos.db")
+    conn = psycopg.connect(DB_URL)
     c = conn.cursor()
-    c.execute("SELECT video_id, title, channel, duration, category, seconds_watched, watched_at FROM videos ORDER BY watched_at DESC") #fetch videos from db, ordered by descending watch time
+    c.execute("SELECT video_id, title, channel, duration, category, seconds_watched, watched_at FROM videos ORDER BY watched_at DESC") 
     rows = c.fetchall()
     conn.close()
 
     videos = []
-    for row in rows: # creates dictionary
+    for row in rows:
         videos.append({
             "video_id": row[0],
             "title": row[1],
@@ -155,12 +156,12 @@ def get_videos():
 
 @app.route("/daily", methods=["GET"])
 def get_daily():
-    conn = sqlite3.connect("videos.db")
+    conn = psycopg.connect(DB_URL)
     c = conn.cursor()
     c.execute("""
-              SELECT DATE(watched_at, 'localtime') as day, SUM(seconds_watched) as total_seconds
+              SELECT DATE(watched_at) as day, SUM(seconds_watched) as total_seconds
               FROM videos
-              GROUP BY DATE(watched_at, 'localtime')
+              GROUP BY DATE(watched_at)
               ORDER BY day DESC
     """)
     rows = c.fetchall()
@@ -180,7 +181,7 @@ def dashboard():
 
 @app.route("/clear", methods=["POST"])
 def clear_db():
-    conn = sqlite3.connect("videos.db")
+    conn = psycopg.connect(DB_URL)
     c = conn.cursor()
     c.execute("DROP TABLE IF EXISTS videos")
     c.execute("DROP TABLE IF EXISTS email_log")
