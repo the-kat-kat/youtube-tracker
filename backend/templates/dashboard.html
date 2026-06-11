@@ -59,7 +59,7 @@
         todayTime.textContent = formatTime(days[0]?.total_seconds);
       }
       async function loadVideos() {
-        const res = await fetch("https://youtube-tracker.railway.internal/videos");
+        const res = await fetch("https://youtube-tracker-production-2dbe.up.railway.app//videos");
         const videos = await res.json();
 
         document.getElementById("total-videos").textContent = videos.length;
@@ -92,7 +92,7 @@
       setInterval(loadVideos, 36000);
 
       async function load_level() {
-        const res = await fetch('https://youtube-tracker.railway.internal/daily');
+        const res = await fetch('https://youtube-tracker-production-2dbe.up.railway.app/daily');
         const time = await res.json[0]?.total_seconds || 0;
 
         if (total_seconds > 30){

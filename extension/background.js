@@ -17,7 +17,7 @@ chrome.storage.local.get(['userId'], (data) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("Background recieved messageee", message);
     if (message.type == "TRACK_VIDEO") {
-        fetch("https://youtube-tracker.railway.internal/track", {
+        fetch("https://youtube-tracker-production-2dbe.up.railway.app//track", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({video_id: message.videoId, secondsWatched: message.secondsWatched, user_id: userId})
