@@ -8,7 +8,7 @@ import os
 import datetime
 
 load_dotenv() 
-pool = None
+pool = ConnectionPool(DB_URL, min_size=1, max_size=5, open=True)
 app = Flask(__name__) 
 CORS(app)
     
@@ -17,14 +17,9 @@ DB_URL = os.getenv("DB_URL")
 
 DAILY_LIMIT_SECONDS = 30 * 4
 
-def get_pool():
-    global pool
-    if pool is None:
-        pool = ConnectionPool(DB_URL, min_size=1, max_size=3)
-    return pool
 
 def init_db():
-    conn = get_pool().getconn()
+    conn = pool.getconn()
     try:
         c = conn.cursor() 
         c.execute(""" 
@@ -48,10 +43,10 @@ def init_db():
         """)
         conn.commit()
     finally:
-        get_pool().putconn(conn)
+        pool.putconn(conn)
     
 def check_today_limit(user_id = "default_id"):
-    conn = get_pool().getconn()
+    conn = pool.getconn()
     try:
         c = conn.cursor()
         c.execute("""
@@ -82,7 +77,7 @@ def check_today_limit(user_id = "default_id"):
         print("email already sent:", email_already_sent)
         print("should send email:", should_send_email)
     finally:
-        get_pool().putconn(conn)
+        pool.putconn(conn)
     return{"limitExceeded": limit_crossed, "shouldSendEmail": should_send_email}
 
 @app.route("/track", methods=["POST"])
@@ -97,7 +92,7 @@ def track():
     if not video_id:
         return jsonify({"status": "ignored", "limitExceeded": False, "shouldSendEmail": False})
     
-    conn = get_pool().getconn()
+    conn = pool.getconn()
     try:
         c = conn.cursor()
         c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = %s AND user_id = %s AND DATE(watched_at) = CURRENT_DATE ORDER BY watched_at DESC LIMIT 1", (video_id, user_id))
@@ -132,30 +127,30 @@ def track():
         duration = item["contentDetails"]["duration"]
         category = item["snippet"]["categoryId"]
 
-        conn = get_pool().getconn()
+        conn = pool.getconn()
         try:
             c = conn.cursor()
             c.execute("INSERT INTO videos (video_id, title, channel, duration, category, user_id, seconds_watched) VALUES (%s, %s, %s, %s, %s, %s, %s)",
             (video_id, title, channel, duration, category, user_id, seconds_watched))
             conn.commit()
         finally:
-            get_pool().putconn(conn)
+            pool.putconn(conn)
         
         limit_data = check_today_limit(user_id)
         return jsonify({"status": "ok", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
     
     finally:
-        get_pool().putconn(conn)
+        pool.putconn(conn)
         
 @app.route("/videos", methods=["GET"]) 
 def get_videos():
-    conn = get_pool().getconn()
+    conn = pool.getconn()
     try:
         c = conn.cursor()
         c.execute("SELECT video_id, title, channel, duration, category, seconds_watched, watched_at FROM videos ORDER BY watched_at DESC") 
         rows = c.fetchall()
     finally:
-        get_pool().putconn(conn)
+        pool.putconn(conn)
 
     videos = []
     for row in rows:
@@ -172,7 +167,7 @@ def get_videos():
 
 @app.route("/daily", methods=["GET"])
 def get_daily():
-    conn = get_pool().getconn()
+    conn = pool.getconn()
     try:
         c = conn.cursor()
         c.execute("""
@@ -183,7 +178,7 @@ def get_daily():
         """)
         rows = c.fetchall()
     finally:
-        get_pool().putconn(conn)
+        pool.putconn(conn)
     
     daily = []
     for row in rows:
@@ -199,14 +194,14 @@ def dashboard():
 
 @app.route("/clear", methods=["POST"])
 def clear_db():
-    conn = get_pool().getconn()
+    conn = pool.getconn()
     try:
         c = conn.cursor()
         c.execute("DROP TABLE IF EXISTS videos")
         c.execute("DROP TABLE IF EXISTS email_log")
         conn.commit()
     finally:
-        get_pool().putconn(conn)
+        pool.putconn(conn)
     return jsonify ({"status": "cleared"})
 
 with app.app_context():
