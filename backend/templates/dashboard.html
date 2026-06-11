@@ -13,8 +13,6 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <h1>get off youtube</h1>
-
     <div class="stats">
       <div class="stat-box">
         <h2 id="total-videos">0</h2>
@@ -90,8 +88,8 @@
 
       loadDaily();
       loadVideos();
-      setInterval(loadDaily, 10000);
-      setInterval(loadVideos, 10000);
+      setInterval(loadDaily, 36000); // 1 minute
+      setInterval(loadVideos, 36000);
 
       async function load_level() {
         const res = await fetch('https://youtube-tracker-cqyn.onrender.com/daily');

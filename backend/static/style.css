@@ -1,7 +1,7 @@
 :root {
-  --primary: #ffffff;
+  --primary: #4d88d0;
   --muted: #c6d0ff;
-  --secondary: #93a2f4;
+  --secondary: #ffffff;
 }
 body {
   font-family: "Fredoka", sans-serif;
@@ -20,8 +20,8 @@ h1, h2, th {
 body::before {
   content: "";
   position: fixed;
-  top: 0;
-  bottom: 0;
+  top: 40;
+  bottom: 40;
   left: 0;
   right: 0;
   background-image: url('/static/images/yt-1.png');
