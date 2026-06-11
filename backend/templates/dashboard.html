@@ -59,7 +59,7 @@
         todayTime.textContent = formatTime(days[0]?.total_seconds);
       }
       async function loadVideos() {
-        const res = await fetch("https://youtube-tracker-production-2dbe.up.railway.app//videos");
+        const res = await fetch("https://youtube-tracker-production-2dbe.up.railway.app/videos");
         const videos = await res.json();
 
         document.getElementById("total-videos").textContent = videos.length;
