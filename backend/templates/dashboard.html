@@ -88,14 +88,15 @@
 
       loadDaily();
       loadVideos();
-      setInterval(loadDaily, 36000); // 1 minute
-      setInterval(loadVideos, 36000);
+      loadLevel();
+      setInterval(loadDaily, 30000); // 30 sec
+      setInterval(loadVideos, 30000);
 
-      async function load_level() {
+      async function loadLevel() {
         const res = await fetch('https://youtube-tracker-production-2dbe.up.railway.app/daily');
         const days = await res.json()
         const total_time = days[0]?.total_seconds || 0;
-        console.log("total seconds today", total_seconds, "level", document.body.className)
+        console.log("total seconds today", total_time, "level", document.body.className)
 
         if (total_seconds > 120){
           document.body.className = "level5";

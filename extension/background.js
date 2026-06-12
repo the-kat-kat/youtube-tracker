@@ -39,7 +39,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.notifications.create({
                     type: "basic",
                     title: "GET OFF YOUTUBE",
-                    iconUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                    iconUrl: "yt-icon.png",
                     message: "stop wasting time son"
                 }, (notificationId) => {
                     if (chrome.runtime.lastError) {
