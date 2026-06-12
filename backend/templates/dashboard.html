@@ -86,6 +86,14 @@
         return `${m}m ${s}s`;
       }
 
+      function preloadImages(){
+        const base = 'https://youtube-tracker-production-2dbe.up.railway.app/static/images/';
+        [1,2,3,4,5].forEach(i => {
+          const img = new Image();
+          img.src = '${base}yt-${i}.png';
+        })
+      }
+
       loadDaily();
       loadVideos();
       loadLevel();
@@ -98,29 +106,20 @@
         const total_time = days[0]?.total_seconds || 0;
         console.log("total seconds today", total_time, "level", document.body.className)
 
-        let new_level = 1
         if (total_time > 120){
-          new_level = "level5";
           document.body.className = "level5";
         }
         else if (total_time > 90){
-          new_level = "level4";
           document.body.className = "level4";
         }
         else if (total_time > 60 ){
-          new_level = "level3"
           document.body.className = "level3";
         }
         else if (total_time > 30){
-          new_level = "level2"
           document.body.className = "level2"
         }
         else{
           document.body.className = "";
-        }
-
-        if( new_level != document.body.className){
-          location.reload();
         }
       }
     </script>
