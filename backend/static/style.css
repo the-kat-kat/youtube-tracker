@@ -28,22 +28,22 @@ body::before {
   bottom: 0;
   left: 0;
   right: 0;
-  background-image: url('/static/images/yt-1.png');
+  background-image: url('https://youtube-tracker-production-2dbe.up.railway.app/static/images/yt-1.png');
   background-size: cover;
   background-position: center;
   z-index: -1;
 }
 body.level2::before{
-  background-image: url('/static/images/yt-2.png');
+  background-image: url('https://youtube-tracker-production-2dbe.up.railway.app/static/images/yt-2.png');
 }
 body.level3::before{
-  background-image: url('/static/images/yt-3.png');
+  background-image: url('https://youtube-tracker-production-2dbe.up.railway.app/static/images/yt-3.png');
 }
 body.level4::before{
-  background-image: url('/static/images/yt-4.png');
+  background-image: url('https://youtube-tracker-production-2dbe.up.railway.app/static/images/yt-4.png');
 }
 body.level5::before{
-  background-image: url('/static/images/yt-5.png');
+  background-image: url('https://youtube-tracker-production-2dbe.up.railway.app/static/images/yt-5.png');
 }
 .stats {
   display: flex;

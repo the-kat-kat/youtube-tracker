@@ -95,7 +95,7 @@ def track():
         c.execute("SELECT id, seconds_watched FROM videos WHERE video_id = %s AND user_id = %s AND DATE(watched_at) = CURRENT_DATE ORDER BY watched_at DESC LIMIT 1", (video_id, user_id))
         row = c.fetchone()
         
-        if row and seconds_watched ==0:
+        if row and seconds_watched == 0:
             limit_data = check_today_limit(user_id, conn)
             return jsonify({"status": "duplicate", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
         

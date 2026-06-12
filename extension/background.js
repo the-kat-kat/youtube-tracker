@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.notifications.create({
                     type: "basic",
                     title: "GET OFF YOUTUBE",
-                    iconUrl: "kitty.png",
+                    iconUrl: "yt-icon.png",
                     message: "stop wasting time son"
                 })
 
