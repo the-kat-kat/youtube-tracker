@@ -98,16 +98,16 @@
         const total_time = days[0]?.total_seconds || 0;
         console.log("total seconds today", total_time, "level", document.body.className)
 
-        if (total_seconds > 120){
+        if (total_time > 120){
           document.body.className = "level5";
         }
-        else if (total_seconds > 90){
+        else if (total_time > 90){
           document.body.className = "level4";
         }
-        else if (total_seconds > 60 ){
+        else if (total_time > 60 ){
           document.body.className = "level3";
         }
-        else if (total_seconds > 30){
+        else if (total_time > 30){
           document.body.className = "level2"
         }
         else{
