@@ -96,13 +96,13 @@ def track():
         row = c.fetchone()
         
         if row and seconds_watched ==0:
-            limit_data = check_today_limit(user_id)
+            limit_data = check_today_limit(user_id, conn)
             return jsonify({"status": "duplicate", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
         
         if row and seconds_watched > 0:
             c.execute("UPDATE videos SET seconds_watched = seconds_watched + %s WHERE id = %s", (seconds_watched, row[0]))
             conn.commit()
-            limit_data = check_today_limit(user_id)
+            limit_data = check_today_limit(user_id, conn)
             return jsonify({"status": "updated", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
         
         info = requests.get(

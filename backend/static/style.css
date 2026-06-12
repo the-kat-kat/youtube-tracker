@@ -20,8 +20,8 @@ h1, h2, th {
 body::before {
   content: "";
   position: fixed;
-  top: 40;
-  bottom: 40;
+  top: 40px;
+  bottom: 40px;
   left: 0;
   right: 0;
   background-image: url('/static/images/yt-1.png');
