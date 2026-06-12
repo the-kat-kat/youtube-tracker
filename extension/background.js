@@ -38,8 +38,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.notifications.create({
                     type: "basic",
                     title: "GET OFF YOUTUBE",
-                    iconUrl: "yt-icon.png",
+                    iconUrl: chrome.runtime.getURL("yt-icon.png"),
                     message: "stop wasting time son"
+                }, (notificationId) => {
+                    if (chrome.runtime.lastError) {
+                        console.error("notification error:", chrome.runtime.lastError.message);
+                    } else {
+                        console.log("notificaiton id", notificationId);
+                    }
                 })
 
                 console.log("should send email!");
