@@ -46,39 +46,35 @@ def init_db():
     finally:
         pool.putconn(conn)
     
-def check_today_limit(user_id = "default_id"):
-    conn = pool.getconn()
-    try:
-        c = conn.cursor()
-        c.execute("""
-                SELECT SUM(seconds_watched)
-                FROM videos
-                WHERE Date(watched_at) = CURRENt_DATE
-                AND user_id = %s
-                """, (user_id,))
-        row = c.fetchone()
-        total_seconds = row[0] if row[0] is not None else 0
-        print("total seconds watched today", total_seconds)
-        
-        limit_crossed = total_seconds >= DAILY_LIMIT_SECONDS
-        print("limit exceeded?", limit_crossed)
-        
-        today_str = datetime.date.today()
-        c.execute("SELECT id FROM email_log WHERE sent_date = %s AND  user_id = %s", (today_str, user_id,))
-        email_already_sent = c.fetchone() is not None
-        
-        should_send_email = False
-        if limit_crossed and not email_already_sent:
-            c.execute("INSERT INTO email_log (sent_date, user_id) VALUES (%s, %s)", (today_str, user_id,))
-            conn.commit()
-            should_send_email = True
-        
-        print("total seconds today:", total_seconds)
-        print("limit crossed:", limit_crossed)
-        print("email already sent:", email_already_sent)
-        print("should send email:", should_send_email)
-    finally:
-        pool.putconn(conn)
+def check_today_limit(user_id, conn):
+    c = conn.cursor()
+    c.execute("""
+            SELECT SUM(seconds_watched)
+            FROM videos
+            WHERE Date(watched_at) = CURRENt_DATE
+            AND user_id = %s
+            """, (user_id,))
+    row = c.fetchone()
+    total_seconds = row[0] if row[0] is not None else 0
+    print("total seconds watched today", total_seconds)
+    
+    limit_crossed = total_seconds >= DAILY_LIMIT_SECONDS
+    print("limit exceeded?", limit_crossed)
+    
+    today_str = datetime.date.today()
+    c.execute("SELECT id FROM email_log WHERE sent_date = %s AND  user_id = %s", (today_str, user_id,))
+    email_already_sent = c.fetchone() is not None
+    
+    should_send_email = False
+    if limit_crossed and not email_already_sent:
+        c.execute("INSERT INTO email_log (sent_date, user_id) VALUES (%s, %s)", (today_str, user_id,))
+        conn.commit()
+        should_send_email = True
+    
+    print("total seconds today:", total_seconds)
+    print("limit crossed:", limit_crossed)
+    print("email already sent:", email_already_sent)
+    print("should send email:", should_send_email)
     return{"limitExceeded": limit_crossed, "shouldSendEmail": should_send_email}
 
 @app.route("/track", methods=["POST"])
@@ -128,16 +124,11 @@ def track():
         duration = item["contentDetails"]["duration"]
         category = item["snippet"]["categoryId"]
 
-        conn = pool.getconn()
-        try:
-            c = conn.cursor()
-            c.execute("INSERT INTO videos (video_id, title, channel, duration, category, user_id, seconds_watched) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (video_id, title, channel, duration, category, user_id, seconds_watched))
-            conn.commit()
-        finally:
-            pool.putconn(conn)
+        c.execute("INSERT INTO videos (video_id, title, channel, duration, category, user_id, seconds_watched) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (video_id, title, channel, duration, category, user_id, seconds_watched))
+        conn.commit()
         
-        limit_data = check_today_limit(user_id)
+        limit_data = check_today_limit(user_id, conn)
         return jsonify({"status": "ok", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
     
     finally:
