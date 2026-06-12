@@ -189,8 +189,7 @@ def clear_db():
     conn = pool.getconn()
     try:
         c = conn.cursor()
-        c.execute("DROP TABLE IF EXISTS videos")
-        c.execute("DROP TABLE IF EXISTS email_log")
+        c.execute("TRUNCATE TABLE IF EXISTS videos, email_log RESTART IDENTITY")
         conn.commit()
     finally:
         pool.putconn(conn)
