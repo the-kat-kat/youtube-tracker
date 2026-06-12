@@ -7,7 +7,7 @@ body {
   font-family: "Fredoka", sans-serif;
   background-color: var(--primary);
   color: var(--primary);
-  padding: 400px 140px 140px 140px;
+  padding: 600px 140px 140px 140px;
 }
 h1{
     font-size: 2em;

@@ -35,10 +35,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (data && data.shouldSendEmail && !emailSentToday) {
                 emailSentToday = true;
 
+                console.log("is notif api available", !!chrome.notifications)
                 chrome.notifications.create({
                     type: "basic",
                     title: "GET OFF YOUTUBE",
-                    iconUrl: chrome.runtime.getURL("yt-icon.png"),
+                    iconUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
                     message: "stop wasting time son"
                 }, (notificationId) => {
                     if (chrome.runtime.lastError) {
