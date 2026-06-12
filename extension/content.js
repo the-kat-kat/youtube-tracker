@@ -24,7 +24,6 @@ function checkForVideo() {
         }
         lastVideoId = videoId;
         videoStartTime = Date.now();
-        sendVideo(videoId, 0);
     }
 }
 

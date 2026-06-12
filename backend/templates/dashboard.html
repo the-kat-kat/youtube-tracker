@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <div class="stats">
+    <div class="stats" style="margin-top: 60px">
       <div class="stat-box">
         <h2 id="total-videos">0</h2>
         <p>videos watched</p>
@@ -48,7 +48,7 @@
           .map(
             (d) => `
                     <div class="stat-box" style="display: flex; justify-content: space-between;">
-                        <span>${d.date}</span>
+                        <span>${new Date(d.date).toLocaleDateString()}</span>
                         <span>${formatTime(d.total_seconds)}</span>
                     </div>
                 `,
@@ -93,19 +93,21 @@
 
       async function load_level() {
         const res = await fetch('https://youtube-tracker-production-2dbe.up.railway.app/daily');
-        const time = await res.json[0]?.total_seconds || 0;
+        const days = await res.json()
+        const total_time = days[0]?.total_seconds || 0;
+        console.log("total seconds today", total_seconds, "level", document.body.className)
 
-        if (total_seconds > 30){
-          document.body.classnName = "level2";
+        if (total_seconds > 120){
+          document.body.className = "level5";
         }
-        else if (total_seconds > 60){
-          document.body.className = "level3";
-        }
-        else if (total_seconds > 90 ){
+        else if (total_seconds > 90){
           document.body.className = "level4";
         }
-        else if (total_seconds > 120){
-          document.body.className = "level5"
+        else if (total_seconds > 60 ){
+          document.body.className = "level3";
+        }
+        else if (total_seconds > 30){
+          document.body.className = "level2"
         }
         else{
           document.body.className = "";
