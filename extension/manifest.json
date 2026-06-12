@@ -16,10 +16,5 @@
             "matches": ["*://*.youtube.com/*"],
             "js": ["content.js"]
         }
-    ],
-    "web_accessible_resources": [
-        {
-            "resources": ["yt-icon.png"]
-        }
     ]
 }
