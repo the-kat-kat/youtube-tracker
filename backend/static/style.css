@@ -29,7 +29,7 @@ body::before {
   left: 0;
   right: 0;
   background-image: url('https://youtube-tracker-production-2dbe.up.railway.app/static/images/yt-1.png');
-  background-size: cover;
+  background-size: contain;
   background-position: center;
   z-index: -1;
 }
