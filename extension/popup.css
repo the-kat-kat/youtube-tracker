@@ -9,16 +9,17 @@ body {
   color: var(--primary);
   width: 300px;
   padding: 20px;
-  border-radius: 4px;
+  border-radius: 12px;
+  overflow:hidden;
 }
 h1{
-  font-size: 1em;
+  font-size: 2em;
 }
 a{
   display: inline-block;
   background: var(--muted);
   color: white;
-  padding: 20px;
+  padding: 10px 20px;
   border-radius: 8px;
   text-decoration: none;
 }
