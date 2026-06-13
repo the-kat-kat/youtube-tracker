@@ -10,7 +10,7 @@ the cat get progressively closer to being eaten as watch time increases (sometim
 <img width="1121" height="705" alt="Screenshot 2026-06-12 at 8 10 54 PM" src="https://github.com/user-attachments/assets/91efb5a6-7153-48e9-9a4e-82ccac9a0f88" />
 <img width="1095" height="712" alt="Screenshot 2026-06-12 at 8 11 47 PM" src="https://github.com/user-attachments/assets/aa7e1ab0-09fc-478f-9ca3-bc24fdf3f462" />
 
-when you pass the limit it send an email + spams notifications
+when you pass the limit it sends an email + spams notifications
 
 <img width="384" height="155" alt="Screenshot 2026-06-12 at 7 51 31 PM" src="https://github.com/user-attachments/assets/0c032851-0fbb-450d-9a55-203ee9c49521" />
 <img width="332" height="68" alt="Screenshot 2026-06-12 at 8 11 32 PM" src="https://github.com/user-attachments/assets/63c69967-c503-41fa-a0de-95379fc00d27" />
@@ -26,6 +26,7 @@ the dashboard will be at this url: https://youtube-tracker-production-2dbe.up.ra
 ai was used for debugging
 
 # mini demo~
+
 its sliming me out
 (had to record with my phone since notifications dont show when i screen record)
 
