@@ -27,7 +27,7 @@ body::before{
   background-position: fixed;
   z-index: -1;
 }
-h1{
+p{
   margin-top: 40px;
   font-size: 2em;
 }
