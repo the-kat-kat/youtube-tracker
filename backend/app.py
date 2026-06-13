@@ -75,7 +75,7 @@ def check_today_limit(user_id, conn):
     print("limit crossed:", limit_crossed)
     print("email already sent:", email_already_sent)
     print("should send email:", should_send_email)
-    return{"limitExceeded": limit_crossed, "shouldSendEmail": should_send_email}
+    return{"limitExceeded": limit_crossed, "shouldSendEmail": should_send_email, "todayTime": total_seconds}
 
 @app.route("/track", methods=["POST"])
 def track():
@@ -129,7 +129,7 @@ def track():
         conn.commit()
         
         limit_data = check_today_limit(user_id, conn)
-        return jsonify({"status": "ok", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"]})
+        return jsonify({"status": "ok", "limitExceeded": limit_data["limitExceeded"], "shouldSendEmail": limit_data["shouldSendEmail"], "todayTime": limit_data["todayTime"]})
     
     finally:
         pool.putconn(conn)

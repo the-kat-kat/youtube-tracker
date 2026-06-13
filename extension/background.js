@@ -3,6 +3,7 @@ const GOOGLE_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwfoy2u78o0tOel
 let emailSentToday = false;
 let emailLastSentDate = null;
 let userId = null;
+let oldLoggedTime = 0;
 
 chrome.storage.local.get(['userId'], (data) => {
     if (data.userId){
@@ -53,6 +54,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 fetch(GOOGLE_SCRIPT_URL, {method: "POST"})
                 .then(() => console.log("sent email"))
                 .catch(err => console.error("error sending email", err));
+            }
+
+            if(emailSentToday){
+                const loggedTime = Math.log(data.todayTime/60)
+                if(loggedTime != oldLoggedTime){
+                    chrome.notifications.create({
+                        type: "basic",
+                        title: "WHY ARE YOU NOT GETTING OFF",
+                        iconUrl: "yt-icon.png",
+                        message: "im watching you"
+                    }, (notificationId) => {
+                        if (chrome.runtime.lastError) {
+                            console.error("notification error:", chrome.runtime.lastError.message);
+                        } else {
+                            console.log("notificaiton id", notificationId);
+                        }
+                    })
+                }
+                oldLoggedTime = loggedTime
             }
             sendResponse({status: "ok"});
         })

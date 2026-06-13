@@ -2,23 +2,14 @@
 <html>
 <head>
     <style>
-        body {width: 300px; padding: 16 px; font-family: Fredoka, sans-serif;}
+        body {width: 300px; padding: 16px; border-radius: 4px; font-family: Fredoka, sans-serif;}
     </style>
 </head>
 <body>
     <h2>GET OFF YOUTUBE</h2>
     <p id="today-time">Loading...</p>
     <a href="https://https://youtube-tracker-production-2dbe.up.railway.app" target="_blank">Open Dashboard</a>
-
-    <script>
-        fetch("https://your-railway-url.up.railway.app/daily")
-        .then(r => r.json())
-        .then(days => {
-            const seconds = days[0]?.total_seconds || 0;
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            document.getElementById("today-time").textContent = 'Today: ${m}m ${s}s watched';
-        });
-    </script>
 </body>
+
+<script src="popup.js"></script>
 </html>
