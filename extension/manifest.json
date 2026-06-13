@@ -5,7 +5,7 @@
         "128": "yt-icon.png"
     },
     "action": {
-        "default_popop": "popup.html",
+        "default_popup": "popup.html",
         "default_icon": "yt-icon.png"
     },
     "version": "1.0",
