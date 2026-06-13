@@ -31,6 +31,7 @@ body::before {
   background-image: url('https://youtube-tracker-production-2dbe.up.railway.app/static/images/yt-1.png');
   background-size: contain;
   background-position: center;
+  background-repeat: no-repeat;
   z-index: -1;
 }
 body.level2::before{
