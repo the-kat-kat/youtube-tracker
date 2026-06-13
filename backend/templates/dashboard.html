@@ -35,7 +35,7 @@
       <tbody id="video-list"></tbody>
     </table>
 
-    <h2>Daily Watch Time</h2>
+    <h2 id="daily-header" style="display: none">Daily Watch Time</h2>
     <div id="daily-summary"></div>
 
     <script>
@@ -54,6 +54,13 @@
                 `,
           )
           .join("");
+
+        if (days.length > 0){
+          document.getElementById("daily-header").style.display = "block";
+        }
+        else{
+          document.getElementById("daily-header").style.display = "none";
+        }
 
         const todayTime = document.getElementById("today-videos");
         todayTime.textContent = formatTime(days[0]?.total_seconds);
