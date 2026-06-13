@@ -21,6 +21,7 @@ when you pass the limit it sends an email + spams notifications
 this is a chrome extension built with javascript, a flask server, a progreSQL database, and deployed via railway
 
 you can install the extension by downloading the zip file and opening it on the chrome extensions page 
+
 the dashboard will be at this url: https://youtube-tracker-production-2dbe.up.railway.app/
 
 ai was used for debugging
