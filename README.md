@@ -24,3 +24,13 @@ you can install the extension by downloading the zip file and opening it on the 
 the dashboard will be at this url: https://youtube-tracker-production-2dbe.up.railway.app/
 
 ai was used for debugging
+
+# mini demo~
+its sliming me out
+(had to record with my phone since notifications dont show when i screen record)
+
+https://github.com/user-attachments/assets/aba7f1b7-4d2b-4d81-a932-f083d3e8ad23
+
+
+
+
