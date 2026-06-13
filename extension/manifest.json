@@ -4,6 +4,10 @@
     "icons":{
         "128": "yt-icon.png"
     },
+    "action": {
+        "default_popop": "popup.html",
+        "default_icon": "yt-icon.png"
+    },
     "version": "1.0",
     "description": "yells at me if i waste time on youtube",
     "permissions": ["tabs", "storage", "notifications"],
