@@ -92,3 +92,6 @@ tr:hover {
 .stat-box, table, h1:hover{
     transform: scale(1.02);
 }
+a{
+  text-decoration: none;
+}
