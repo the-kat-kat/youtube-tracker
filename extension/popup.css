@@ -5,11 +5,12 @@
 }
 body {
   font-family: "Fredoka", sans-serif;
-  font-weight: 800;
+  font-weight: 400;
   text-align: center;
   background-color: #ffffff;
   color: #ffffff;
-  width: 300px;
+  width: 200px;
+  height: 113px;
   padding: 20px;
   border-radius: 12px;
   overflow:hidden;
@@ -22,11 +23,12 @@ body::before{
   left: 0px;
   right: 0px;
   background-image: url('https://youtube-tracker-production-2dbe.up.railway.app/static/images/yt-1.png');
-  background-size: contain;
+  background-size: cover;
   background-position: fixed;
   z-index: -1;
 }
 h1{
+  padding: 10px 0px 0px 0px;
   font-size: 2em;
 }
 a{
