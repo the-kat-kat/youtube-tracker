@@ -1,0 +1,16 @@
+:root {
+  --primary: #6ad9fb;
+  --muted: #fff4c6;
+  --secondary: #ffffff;
+}
+body {
+  font-family: "Fredoka", sans-serif;
+  background-color: var(--primary);
+  color: var(--primary);
+  width: 300px;
+  padding: 20px;
+  border-radius: 4px;
+}
+h1{
+  font-size: 1em;
+}
