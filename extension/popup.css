@@ -5,8 +5,10 @@
 }
 body {
   font-family: "Fredoka", sans-serif;
+  font-weight: 800;
+  text-align: center;
   background-color: #ffffff;
-  color: var(--primary);
+  color: #ffffff;
   width: 300px;
   padding: 20px;
   border-radius: 12px;
